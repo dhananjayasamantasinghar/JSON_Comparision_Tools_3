@@ -179,6 +179,9 @@ public class CommpoUtils {
 				list.add(rootName + map.getKey());
 			}
 		}
+		//String content = AppReader.getContentFromFile("./static/insured-person.json");
+		//List<String> list = CommpoUtils.getNodeList(content);
+		//list.forEach(System.out::println);
 		return list;
 
 	}
