@@ -3,12 +3,18 @@ package com.ct.utils;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.springframework.util.ReflectionUtils;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.JsonNodeType;
 
 public class CommpoUtils {
 
@@ -59,6 +65,7 @@ public class CommpoUtils {
 			if (method.getName().equalsIgnoreCase("set" + value)) {
 				field.setAccessible(true);
 				method.invoke(obj1, ReflectionUtils.getField(field, podEmployee));
+				break;
 			}
 		}
 	}
@@ -155,4 +162,29 @@ public class CommpoUtils {
 		return null;
 
 	}
+
+	public static List<String> getNodeList(String content) throws Exception {
+		JsonNode nodes = new ObjectMapper().readTree(content);
+		return getNodeList("/", nodes, new ArrayList<>());
+
+	}
+
+	private static List<String> getNodeList(String rootName, JsonNode node, List<String> list) throws Exception {
+		Iterator<Entry<String, JsonNode>> fields = node.fields();
+		while (fields.hasNext()) {
+			Map.Entry<String, JsonNode> map = (Map.Entry<String, JsonNode>) fields.next();
+			if (isObjectNode(map.getValue())) {
+				getNodeList(rootName + map.getKey() + "/", map.getValue(), list);
+			} else {
+				list.add(rootName + map.getKey());
+			}
+		}
+		return list;
+
+	}
+
+	private static boolean isObjectNode(JsonNode node) {
+		return node.getNodeType() == JsonNodeType.OBJECT;
+	}
+
 }
